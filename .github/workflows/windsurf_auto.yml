@@ -17,12 +17,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - # name: Install WindSurf
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -  name: Install WindSurf
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-        #  git config --global \
-        #    url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-        #  pip install --
+          git config --global \
+            url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          pip install --upgrade git+https://github.com/openai/widsurf.gif
 
       - name: Write Service Account JSON to disk
         run: |

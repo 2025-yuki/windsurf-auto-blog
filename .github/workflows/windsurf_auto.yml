@@ -18,7 +18,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install WindSurf
+        # GitHub Actions が自動で用意する GITHUB_TOKEN を使って
+        # https://github.com/→https://x-access-token:…@github.com/ へ置き換え
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git config --global \
+            url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
           pip install --upgrade git+https://github.com/2025-yuki/windsurf.git
 
       - name: Write Service Account JSON to disk

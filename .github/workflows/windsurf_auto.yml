@@ -18,6 +18,7 @@ jobs:
           python-version: '3.11'
 
       -  name: Install WindSurf
+	env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global \

@@ -1,0 +1,216 @@
+# =============================================
+#  auto_seo.yaml
+#  WindSurf pipeline for:
+#    1. Pick next keyword from Google Sheet
+#    2. Analyse intent + craft outline & title
+#    3. Write article, make images
+#    4. Post to WordPress
+#    5. Notify Slack & mark row as done
+# =============================================
+
+version: "1.0"
+
+# ---------- 共有設定 ----------
+env:
+  TZ: "Asia/Tokyo"
+  SPREADSHEET_ID: "${SPREADSHEET_ID}"
+  WP_URL:      "${WP_URL}"
+  WP_USER:     "${WP_USER}"
+  WP_APP_PASS: "${WP_APP_PASS}"
+  SLACK_WEBHOOK_URL: "${SLACK_WEBHOOK_URL}"
+
+# ---------- 定期実行 ----------
+cron:
+  daily_post:
+    schedule: "0 0 * * *"
+    task: publish_pipeline
+
+  monthly_wp_pass_reminder:
+    schedule: "0 0 1 * *"
+    task: remind_wp_pass
+
+# ---------- タスク定義 ----------
+tasks:
+
+  init_python:
+    uses: python
+    run: |
+      import os, json, re, base64, datetime, random
+      from google.oauth2.service_account import Credentials
+      from googleapiclient.discovery import build
+      from wordpress_xmlrpc import Client, WordPressPost
+      from wordpress_xmlrpc.methods import posts, media
+      import requests
+
+  fetch_keyword:
+    needs: [init_python]
+    uses: python
+    run: |
+      creds = Credentials.from_service_account_file(
+          os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+          scopes=[
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive.file"
+          ])
+      sheet = build("sheets", "v4", credentials=creds).spreadsheets()
+      SHEET_NAME = "keywords"
+      RANGE = f"{SHEET_NAME}!A:G"
+      rows = sheet.values().get(
+          spreadsheetId=os.getenv("SPREADSHEET_ID"),
+          range=RANGE
+      ).execute().get("values", [])
+      header, *data = rows
+      target_idx, record = next(
+          ((i, r) for i, r in enumerate(data, start=2)
+           if (len(r) < 7 or r[6].strip() == "")),
+          (None, None)
+      )
+      if record is None:
+          raise SystemExit("✅ No pending keywords.")
+      kw, intent, qtype, title, cat, tags = (record + [""]*6)[:6]
+      print(f"::set-output name=row::{target_idx}")
+      print(f"::set-output name=kw::{kw}")
+      print(f"::set-output name=intent::{intent}")
+      print(f"::set-output name=qtype::{qtype}")
+      print(f"::set-output name=title::{title}")
+      print(f"::set-output name=cat::{cat}")
+      print(f"::set-output name=tags::{tags}")
+
+  analyse_keyword:
+    needs: [fetch_keyword]
+    uses: openai/chat-completions
+    with:
+      model: "gpt-4o-mini"
+      system: |
+        あなたはSEOコンテンツプランナーです。
+        入力: キーワード「{{kw}}」
+        - 顕在/潜在ニーズを判断し、1語で示してください
+        - クエリタイプを Know / Go / Do / Buy から1つ
+        - ロングテールに最適化した 32 文字以内の日本語タイトルを作成
+        出力は TSV で: intent	qtype	title
+      user: |
+        キーワード: {{kw}}
+    outputs:
+      parse: |
+        {% set parts = result.choices[0].message.content.strip().split("\t") %}
+        ::set-output name=intent::{{ parts[0] }}
+        ::set-output name=qtype::{{ parts[1] }}
+        ::set-output name=title::{{ parts[2] }}
+
+  write_article:
+    needs: [analyse_keyword]
+    uses: openai/chat-completions
+    with:
+      model: "gpt-4o-mini"
+      system: |
+        あなたは専門ブロガーです。次の条件で日本語記事を書いてください:
+        - H2 見出しを 4〜6 個
+        - 各 H2 の下に H3 と箇条書きを含め 2,500〜3,500 文字
+        - 筆者プロフィールと一次情報を末尾に挿入
+        - マークダウン形式
+        - 画像が必要な箇所に `![alt]({{img:N}})` プレースホルダ（N=1 から連番）を置く
+      user: |
+        タイトル: {{title}}
+        キーワード: {{kw}}
+    outputs:
+      article_md: "{{ result.choices[0].message.content }}"
+
+  make_images:
+    needs: [write_article]
+    uses: openai/images.generate
+    with:
+      n: 3
+      size: "1024x1024"
+      prompt: |
+        {{ title }} を説明するブログ用図解。シンプルでフラットな配色、ホワイト背景。
+
+  post_wp:
+    needs: [make_images]
+    uses: python
+    run: |
+      import os, re, requests
+      from wordpress_xmlrpc import Client, WordPressPost
+      from wordpress_xmlrpc.methods import posts, media
+
+      wp = Client(f"{os.getenv('WP_URL')}/xmlrpc.php",
+                  os.getenv('WP_USER'), os.getenv('WP_APP_PASS'))
+      img_urls = {{ steps.make_images.result.data|tojson }}
+      replacements = {}
+      for idx, url in enumerate(img_urls, 1):
+          img_data = requests.get(url).content
+          data = {
+              'name': f"img{idx}.png",
+              'type': 'image/png',
+              'bits': img_data,
+          }
+          attachment_id = wp.call(media.UploadFile(data))['id']
+          replacements[f"!\[alt\]\(\{\{img:{idx}\}\}\)"] = f"[画像{idx}]({url})"
+      md = re.sub(
+          "|".join(replacements.keys()),
+          lambda m: replacements[m.group(0)],
+          "{{steps.write_article.outputs.article_md}}"
+      )
+      post = WordPressPost()
+      post.title   = "{{steps.analyse_keyword.outputs.title}}"
+      post.content = md
+      post.terms_names = {
+          'category': ["{{steps.fetch_keyword.outputs.cat}}"],
+          'post_tag': "{{steps.fetch_keyword.outputs.tags}}".split(",")
+      }
+      post.post_status = 'publish'
+      post_id = wp.call(posts.NewPost(post))
+      print(f"::set-output name=url::{wp.call(posts.GetPost(post_id)).link}")
+
+  notify_slack:
+    needs: [post_wp]
+    uses: http
+    with:
+      url: "${{ env.SLACK_WEBHOOK_URL }}"
+      method: "POST"
+      headers: { "Content-Type": "application/json" }
+      body: |
+        {
+          "text": ":white_check_mark: 新規投稿完了
+• *Title*: {{steps.analyse_keyword.outputs.title}}
+• <{{steps.post_wp.outputs.url}}|記事リンク>"
+        }
+
+  mark_done:
+    needs: [notify_slack]
+    uses: python
+    run: |
+      import os
+      from google.oauth2.service_account import Credentials
+      from googleapiclient.discovery import build
+      creds = Credentials.from_service_account_file(
+          os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+          scopes=["https://www.googleapis.com/auth/spreadsheets"])
+      sheet = build("sheets", "v4", credentials=creds).spreadsheets()
+      row = int("{{steps.fetch_keyword.outputs.row}}")
+      sheet.values().update(
+          spreadsheetId=os.getenv("SPREADSHEET_ID"),
+          range=f"keywords!G{row}:G{row}",
+          valueInputOption="RAW",
+          body={"values":[["done"]]}
+      ).execute()
+
+  remind_wp_pass:
+    uses: http
+    with:
+      url: "${{ env.SLACK_WEBHOOK_URL }}"
+      method: "POST"
+      headers: { "Content-Type": "application/json" }
+      body: |
+        { "text": ":warning: *WP Application Password* は今日更新日です。`WP_APP_PASS` Secrets の差し替えを忘れずに！" }
+
+# ---------- パイプラインエントリポイント ----------
+pipelines:
+  publish_pipeline:
+    tasks:
+      - fetch_keyword
+      - analyse_keyword
+      - write_article
+      - make_images
+      - post_wp
+      - notify_slack
+      - mark_done

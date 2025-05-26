@@ -37,8 +37,8 @@ jobs:
           WP_USER: ${{ secrets.WP_USER }}
           WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
         run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}/windsurf:$PYTHONPATH"
+          export PYTHONPATH="${GITHUB_WORKSPACE}/windsurf:${PYTHONPATH}"
           python - << 'EOF'
-            import windsurf.console as wc
-            wc.windsurf("auto_seo.yaml")
-          EOF
+import windsurf.console as wc
+wc.windsurf("auto_seo.yaml")
+EOF

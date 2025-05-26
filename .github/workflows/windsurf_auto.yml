@@ -19,13 +19,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install WindSurf
-        run: |
-          # リポジトリをクローンしてローカルからインストール
-          git clone https://github.com/openearth/windsurf.git
-          cd windsurf
-          pip install -e .
-          cd ..
+   - name: Install WindSurf
+     run: |
+       # リポジトリをルートごとクローンしてインストール
+       git clone https://github.com/openearth/windsurf.git
+       pip install -e windsurf
 
       - name: Write Service Account JSON to disk
         run: |

@@ -28,7 +28,7 @@ jobs:
           echo "${{ secrets.SA_JSON }}" > sa.json
           chmod 600 sa.json
 
-      - name: Run WindSurf pipeline in Python
+      - name: Run pipeline via Python script
         env:
           GOOGLE_APPLICATION_CREDENTIALS: sa.json
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
@@ -36,10 +36,4 @@ jobs:
           WP_URL: ${{ secrets.WP_URL }}
           WP_USER: ${{ secrets.WP_USER }}
           WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
-        run: |
-          # vendor化した windsurf/ フォルダを検索パスに追加
-          export PYTHONPATH="${GITHUB_WORKSPACE}/windsurf:${PYTHONPATH}"
-          python - << 'EOF'
-          import windsurf.console as wc
-          wc.windsurf("auto_seo.yaml")
-          EOF
+        run: python run_pipeline.py

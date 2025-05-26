@@ -2,42 +2,32 @@ name: WindSurf Auto SEO Writer
 
 on:
   schedule:
-    # 毎日 00:00 UTC = 09:00 JST
     - cron: '0 0 * * *'
-  workflow_dispatch:  # 手動実行も可能
+  workflow_dispatch:
 
 jobs:
   run-windsurf:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Setup Python & install WindSurf
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install WindSurf
-        run: |
-          # リポジトリをクローン
-          git clone https://github.com/openearth/windsurf.git
-          # cPickle がない環境向けに import を書き換え
-          sed -i 's|^import cPickle as pickle$|\
-+try: import cPickle as pickle\
-+except ImportError: import pickle as pickle|' windsurf/windsurf/model.py
-          # 開発モードでインストール
-          pip install -e windsurf
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -e .
 
       - name: Write Service Account JSON to disk
         run: |
-          echo '${{ secrets.SA_JSON }}' > /tmp/sa.json
-          chmod 600 /tmp/sa.json
+          echo "${{ secrets.SA_JSON }}" > sa.json
+          chmod 600 sa.json
 
       - name: Run WindSurf pipeline
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json
+          GOOGLE_APPLICATION_CREDENTIALS: sa.json
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           WP_URL: ${{ secrets.WP_URL }}

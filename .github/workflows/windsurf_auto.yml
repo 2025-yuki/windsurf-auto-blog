@@ -22,7 +22,7 @@ jobs:
       - name: Install WindSurf
         run: |
           # OpenEarth の Windsurf モデルを GitHub から直接インストール
-          pip install --upgrade git+https://github.com/openearth/windsurf.git
+          pip install --upgrade "git+https://github.com/openearth/windsurf.git#egg=windsurf"
 
       - name: Write Service Account JSON to disk
         run: |

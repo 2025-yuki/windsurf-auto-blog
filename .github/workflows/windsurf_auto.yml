@@ -1,8 +1,10 @@
 name: WindSurf Auto SEO Writer
+
 on:
   schedule:
+    # 毎日 00:00 UTC = 09:00 JST
     - cron: '0 0 * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # 手動実行も可能
 
 jobs:
   run-windsurf:
@@ -17,11 +19,11 @@ jobs:
         with:
           python-version: '3.11'
 
-       - name: Install WindSurf
-
+      - name: Install WindSurf
         run: |
           # OpenEarth の Windsurf モデルを GitHub から直接インストール
           pip install --upgrade git+https://github.com/openearth/windsurf.git
+
       - name: Write Service Account JSON to disk
         run: |
           echo '${{ secrets.SA_JSON }}' > /tmp/sa.json

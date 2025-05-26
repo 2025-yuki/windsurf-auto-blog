@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Python & install dependencies
+      - name: Setup Python & dependencies
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -39,6 +39,6 @@ jobs:
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}/windsurf:$PYTHONPATH"
           python - << 'EOF'
-import windsurf.console as wc
-wc.windsurf("auto_seo.yaml")
-EOF
+            import windsurf.console as wc
+            wc.windsurf("auto_seo.yaml")
+          EOF

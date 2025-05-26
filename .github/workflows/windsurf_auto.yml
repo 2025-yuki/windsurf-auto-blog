@@ -19,11 +19,11 @@ jobs:
         with:
           python-version: '3.11'
 
-   - name: Install WindSurf
-     run: |
-       # リポジトリをルートごとクローンしてインストール
-       git clone https://github.com/openearth/windsurf.git
-       pip install -e windsurf
+      - name: Install WindSurf
+        run: |
+          # リポジトリをルートごとクローンしてインストール
+          git clone https://github.com/openearth/windsurf.git
+          pip install -e windsurf
 
       - name: Write Service Account JSON to disk
         run: |
@@ -35,7 +35,7 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          WP_URL:  ${{ secrets.WP_URL }}
+          WP_URL: ${{ secrets.WP_URL }}
           WP_USER: ${{ secrets.WP_USER }}
           WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
         run: |

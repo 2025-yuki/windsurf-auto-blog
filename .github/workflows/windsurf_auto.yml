@@ -24,7 +24,7 @@ jobs:
           # リポジトリをクローンしてローカルからインストール
           git clone https://github.com/openearth/windsurf.git
           cd windsurf
-          pip install .
+          pip install -e .
           cd ..
 
       - name: Write Service Account JSON to disk

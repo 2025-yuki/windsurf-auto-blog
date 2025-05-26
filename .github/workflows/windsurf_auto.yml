@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Setup Python & install dependencies
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -37,8 +37,7 @@ jobs:
           WP_USER: ${{ secrets.WP_USER }}
           WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
         run: |
-          # vendor化した windsurf/ フォルダを検索パスに追加
-          export PYTHONPATH="${GITHUB_WORKSPACE}/windsurf:${PYTHONPATH}"
+          export PYTHONPATH="${GITHUB_WORKSPACE}/windsurf:$PYTHONPATH"
           python - << 'EOF'
 import windsurf.console as wc
 wc.windsurf("auto_seo.yaml")

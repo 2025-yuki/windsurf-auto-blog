@@ -23,8 +23,10 @@ jobs:
         run: |
           # リポジトリをクローン
           git clone https://github.com/openearth/windsurf.git
-          # model import の書き換え（相対 import を絶対 import に）
-          sed -i 's|from model import \*|from windsurf.model import *|' windsurf/windsurf/__init__.py
+          # cPickle がない環境向けに import を書き換え
+          sed -i 's|^import cPickle as pickle$|\
++try: import cPickle as pickle\
++except ImportError: import pickle as pickle|' windsurf/windsurf/model.py
           # 開発モードでインストール
           pip install -e windsurf
 

@@ -21,8 +21,11 @@ jobs:
 
       - name: Install WindSurf
         run: |
-          # リポジトリをルートごとクローンしてインストール
+          # リポジトリをクローン
           git clone https://github.com/openearth/windsurf.git
+          # model import の書き換え（相対 import を絶対 import に）
+          sed -i 's|from model import \*|from windsurf.model import *|' windsurf/windsurf/__init__.py
+          # 開発モードでインストール
           pip install -e windsurf
 
       - name: Write Service Account JSON to disk

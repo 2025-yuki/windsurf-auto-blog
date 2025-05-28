@@ -1,19 +1,16 @@
 # run_pipeline.py
-import subprocess
-from pathlib import Path
+"""
+GitHub Actions から呼び出すエントリポイント。
+vendor した openearth/windsurf のモデルを直接実行する。
+"""
 
-PIPELINE_YML = "auto_seo.yaml"
+from pathlib import Path
+from windsurf.model import run_pipeline  # ここは openearth 版でも存在する
 
 def main() -> None:
-    """
-    GitHub Actions から呼び出されるエントリーポイント。
-    vendor フォルダに置いた openearth/windsurf を console-script で実行する。
-    """
-    root = Path(__file__).resolve().parent
-    yaml = root / PIPELINE_YML
-
-    # pip が生成した console-script “windsurf” を呼び出す
-    subprocess.run(["windsurf", "run", str(yaml)], check=True)
+    yaml_path = Path(__file__).with_name("auto_seo.yaml")
+    # Google Sheets → WordPress 投稿まで一括実行
+    run_pipeline(str(yaml_path))
 
 if __name__ == "__main__":
     main()

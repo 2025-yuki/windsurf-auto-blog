@@ -2,7 +2,7 @@ name: WindSurf Auto SEO Writer
 
 on:
   schedule:
-    # 毎日 00:00 UTC = 日本時間 09:00
+    # 日本時間 09:00（UTC 00:00）に毎日実行
     - cron: '0 0 * * *'
   workflow_dispatch:      # 手動実行も可
 
@@ -11,39 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ① リポジトリをチェックアウト
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    # 1) リポジトリをチェックアウト
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      # ② Python 3.11 をセットアップ
-      - name: Setup Python & dependencies
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    # 2) Python 3.11 をセットアップ
+    - name: Setup Python & dependencies
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      # ③ 依存パッケージをインストール
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # ルートの setup.py を使い editable インストール
-          pip install -e .
+    # 3) 依存パッケージをインストール（ルートの setup.py を利用）
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
 
-      # ④ GCP サービスアカウント JSON を書き出し
-      - name: Write Service Account JSON to disk
-        run: |
-          echo '${{ secrets.SA_JSON }}' > sa.json
-          chmod 600 sa.json
+    # 4) GCP サービスアカウント JSON を書き出し
+    - name: Write Service Account JSON to disk
+      run: |
+        echo '${{ secrets.SA_JSON }}' > sa.json
+        chmod 600 sa.json
 
-      # ⑤ WindSurf パイプラインを実行
-      - name: Run pipeline via Python script
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: sa.json
-          SPREADSHEET_ID:        ${{ secrets.SPREADSHEET_ID }}
-          SLACK_WEBHOOK_URL:     ${{ secrets.SLACK_WEBHOOK_URL }}
-          WP_URL:                ${{ secrets.WP_URL }}
-          WP_USER:               ${{ secrets.WP_USER }}
-          WP_APP_PASS:           ${{ secrets.WP_APP_PASS }}
-        run: |
-          # ルートを PYTHONPATH に追加（windsurf パッケージを確実に解決）
-          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          python run_pipeline.py
+    # 5) WindSurf パイプラインを実行
+    - name: Run pipeline via Python script
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: sa.json
+        SPREADSHEET_ID:        ${{ secrets.SPREADSHEET_ID }}
+        SLACK_WEBHOOK_URL:     ${{ secrets.SLACK_WEBHOOK_URL }}
+        WP_URL:                ${{ secrets.WP_URL }}
+        WP_USER:               ${{ secrets.WP_USER }}
+        WP_APP_PASS:           ${{ secrets.WP_APP_PASS }}
+      run: |
+        # ルートを PYTHONPATH に追加して windsurf を解決
+        export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+        python run_pipeline.py

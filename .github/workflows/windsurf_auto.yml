@@ -37,12 +37,12 @@ jobs:
     - name: Run pipeline via Python script
       env:
         GOOGLE_APPLICATION_CREDENTIALS: sa.json
-        SPREADSHEET_ID:        ${{ secrets.SPREADSHEET_ID }}
-        SLACK_WEBHOOK_URL:     ${{ secrets.SLACK_WEBHOOK_URL }}
-        WP_URL:                ${{ secrets.WP_URL }}
-        WP_USER:               ${{ secrets.WP_USER }}
-        WP_APP_PASS:           ${{ secrets.WP_APP_PASS }}
+        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        WP_URL:  ${{ secrets.WP_URL }}
+        WP_USER: ${{ secrets.WP_USER }}
+        WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
       run: |
         # ルートを PYTHONPATH に追加して windsurf を解決
-        export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+        export PYTHONPATH="$GITHUB_WORKSPACE:$PYTHONPATH"
         python run_pipeline.py

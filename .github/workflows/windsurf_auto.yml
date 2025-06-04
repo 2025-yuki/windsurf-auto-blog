@@ -1,42 +1,29 @@
-name: WindSurf Auto SEO Writer
+name: WindSurf AUTO Writer
 
 on:
-  schedule:           # 日本時間 09:00 に毎日実行
-    - cron: '0 0 * * *'
-  workflow_dispatch:  # 手動実行も可
+  workflow_dispatch:
 
 jobs:
-  run-windsurf:
+  run-script:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-    - name: Setup Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install latest WindSurf from GitHub
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade git+https://github.com/openearth/windsurf.git
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Write Service-Account JSON
-      run: |
-        echo '${{ secrets.SA_JSON }}' > sa.json
-        chmod 600 sa.json
-
-    - name: Run WindSurf pipeline
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: sa.json
-        SPREADSHEET_ID:   ${{ secrets.SPREADSHEET_ID }}
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        WP_URL:  ${{ secrets.WP_URL }}
-        WP_USER: ${{ secrets.WP_USER }}
-        WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
-      run: |
-        python - <<'PY'
-        from windsurf.model import run_pipeline
-        run_pipeline("auto_seo.yaml")
-        PY
+      - name: Run WindSurf Auto Writer
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUNO_API_KEY: ${{ secrets.SUNO_API_KEY }}
+          DK_EMAIL: ${{ secrets.DK_EMAIL }}
+          DK_PASSWORD: ${{ secrets.DK_PASSWORD }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: python windsurf/scripts/generate_upload.py

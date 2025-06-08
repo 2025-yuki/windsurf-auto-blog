@@ -1,22 +1,37 @@
+# run_pipeline.py
+"""
+GitHub Actions から呼び出す WindSurf AUTO SEO Writer のエントリポイント。
+ - auto_seo.yaml を読み込み
+ - WindSurf の run_pipeline() を呼び出す
+ - Slack にテスト通知を送る
+"""
+
+from pathlib import Path
 import os
+import requests
+from windsurf.model import run_pipeline  # vendor した openearth/windsurf の関数
 
-# Slack に通知を送る簡単なテスト
-def send_slack_test_message():
-    import requests
-    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
-    if not webhook_url:
-        print("❌ SLACK_WEBHOOK_URL が設定されていません")
-        return
-    payload = {
-        "text": "✅ WindSurf AUTO Writer テスト通知 (from run_pipeline.py)"
-    }
-    resp = requests.post(webhook_url, json=payload)
-    if resp.status_code == 200:
-        print("✅ Slack へ通知成功")
+def main() -> None:
+    yaml_path = Path(__file__).with_name("auto_seo.yaml")
+    print(f"🚀 Running pipeline with YAML: {yaml_path}")
+    run_pipeline(str(yaml_path))
+    print("✅ run_pipeline() 完了")
+
+    # Slack テスト通知
+    webhook = os.getenv("SLACK_WEBHOOK_URL")
+    if webhook:
+        resp = requests.post(
+            webhook,
+            json={"text": "✅ WindSurf AUTO Writer テスト通知 (from run_pipeline.py)"}
+        )
+        if resp.status_code == 200:
+            print("✅ Slack へ通知成功")
+        else:
+            print(f"❌ Slack 通知失敗: {resp.status_code} {resp.text}")
     else:
-        print(f"❌ Slack への通知失敗: {resp.status_code}, {resp.text}")
+        print("⚠️ SLACK_WEBHOOK_URL が未設定のため Slack 送信スキップ")
 
-# ここからテスト実行
 if __name__ == "__main__":
     main()
-    send_slack_test_message()
+
+

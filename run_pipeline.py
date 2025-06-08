@@ -2,7 +2,7 @@
 """
 GitHub Actions から呼び出す WindSurf AUTO SEO Writer のエントリポイント。
  - auto_seo.yaml を読み込み
- - WindSurf の run_pipeline() を呼び出す
+ - WindSurf の run_pipeline() を起動
  - Slack にテスト通知を送る
 """
 
@@ -12,6 +12,7 @@ import requests
 from windsurf.model import run_pipeline  # vendor した openearth/windsurf の関数
 
 def main() -> None:
+    # YAML を取得して実行
     yaml_path = Path(__file__).with_name("auto_seo.yaml")
     print(f"🚀 Running pipeline with YAML: {yaml_path}")
     run_pipeline(str(yaml_path))
@@ -33,5 +34,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-

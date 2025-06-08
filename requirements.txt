@@ -23,5 +23,5 @@ google-api-python-client
 google-auth
 google-auth-httplib2
 google-auth-oauthlib
-wordpress-xmlrpc
+python-wordpress-xmlrpc==2.3
 requests

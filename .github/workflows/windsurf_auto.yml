@@ -1,3 +1,4 @@
+# .github/workflows/windsurf_auto.yml
 name: WindSurf AUTO Writer
 
 on:
@@ -12,21 +13,23 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-	  pip install -e vendor/windsurf
+          pip install -e vendor/windsurf
 
       - name: Run WindSurf pipeline
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY:            ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          WP_URL: ${{ secrets.WP_URL }}
-          WP_USER: ${{ secrets.WP_USER }}
-          WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python run_pipeline.py
+          SPREADSHEET_ID:            ${{ secrets.SPREADSHEET_ID }}
+          WP_URL:                    ${{ secrets.WP_URL }}
+          WP_USER:                   ${{ secrets.WP_USER }}
+          WP_APP_PASS:               ${{ secrets.WP_APP_PASS }}
+          SLACK_WEBHOOK_URL:         ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          echo "🐍 running WindSurf pipeline..."
+          python run_pipeline.py

@@ -1,6 +1,6 @@
 # run_pipeline.py
 """
-WindSurf AUTO SEO Writer – モジュール実行版
+WindSurf AUTO SEO Writer – console.py 直接実行版
 """
 
 from pathlib import Path
@@ -11,11 +11,12 @@ import sys
 def main() -> None:
     repo_root = Path(__file__).parent
     yaml_path = repo_root / "auto_seo.yaml"
+    console_py = repo_root / "vendor" / "windsurf" / "windsurf" / "console.py"
 
-    print(f"🚀 python -m vendor.windsurf run {yaml_path}")
+    print(f"🚀 python {console_py} run {yaml_path}")
 
     subprocess.run(
-        [sys.executable, "-m", "vendor.windsurf", "run", str(yaml_path)],
+        [sys.executable, str(console_py), "run", str(yaml_path)],
         check=True,
     )
 

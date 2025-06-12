@@ -1,37 +1,45 @@
-# .github/workflows/windsurf_auto.yml
-name: WindSurf AUTO Writer
+name: WindSurf Auto SEO
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:           # 手動実行
+  schedule:
+    - cron: '0 0 * * *'        # 毎日 09:00 JST
 
 jobs:
-  run-script:
+  run-windsurf:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -e {0}
+
     steps:
-      - - uses: actions/checkout@v3
-    with:
-    submodules: recursive
-    lfs: true      
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # --- ① リポジトリを取得（サブモジュール含む） ---
+      - uses: actions/checkout@v3
         with:
-          python-version: "3.11"
+          submodules: recursive
 
+      # --- ② Python 3.11 をセットアップ ---
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # --- ③ 依存ライブラリをインストール ---
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
+          python -m pip install -e vendor/windsurf   # ← vendor 版 WindSurf を編集モードで
+
+      # --- ④ WindSurf パイプラインを実行 ---
       - name: Run WindSurf pipeline
         env:
-          PYTHONPATH: ${{ github.workspace }}/vendor:$PYTHONPATH
-          OPENAI_API_KEY:            ${{ secrets.OPENAI_API_KEY }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          SPREADSHEET_ID:            ${{ secrets.SPREADSHEET_ID }}
-          WP_URL:                    ${{ secrets.WP_URL }}
-          WP_USER:                   ${{ secrets.WP_USER }}
-          WP_APP_PASS:               ${{ secrets.WP_APP_PASS }}
-          SLACK_WEBHOOK_URL:         ${{ secrets.SLACK_WEBHOOK_URL }}
+          OPENAI_API_KEY:             ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SA_JSON_PATH }}
+          SPREADSHEET_ID:             ${{ secrets.SPREADSHEET_ID }}
+          WP_URL:                     ${{ secrets.WP_URL }}
+          WP_USER:                    ${{ secrets.WP_USER }}
+          WP_APP_PASS:                ${{ secrets.WP_APP_PASS }}
+          SLACK_WEBHOOK_URL:          ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           echo "🐍 running WindSurf pipeline..."
           python run_pipeline.py

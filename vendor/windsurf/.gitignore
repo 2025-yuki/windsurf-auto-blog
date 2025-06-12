@@ -1,0 +1,19 @@
+*.pyc
+*.egg-info
+*.log
+*.dat
+*.bcf
+*.nc
+*~
+*.pkl
+XB*.txt
+_*
+# macOS
+.DS_Store
+# backup
+*.bak
+
+# macOS
+.DS_Store
+# backup
+*.bak

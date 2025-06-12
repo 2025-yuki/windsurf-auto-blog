@@ -2,3 +2,8 @@
 # Local only
 .env
 .venv/
+
+# macOS
+.DS_Store
+# backup
+*.bak

@@ -1,4 +1,4 @@
-from model import *
+from .model import *
 
 __all__ = ['model',
            'netcdf',

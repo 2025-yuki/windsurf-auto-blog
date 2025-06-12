@@ -1,32 +1,54 @@
 # run_pipeline.py
 """
-WindSurf AUTO SEO Writer エントリポイント
-- vendor/windsurf/windsurf/model.py の run_pipeline() を直接呼び出す
-- 実行後 Slack テスト通知
+GitHub Actions から呼び出す WindSurf AUTO SEO Writer のエントリポイント
+------------------------------------------------------------------
+1. auto_seo.yaml を読み込み WindSurf pipeline を実行
+2. Slack にテスト通知
 """
 
+# ---------- Python2 依存ライブラリを Python3 でだます ----------
+import sys, pickle, stat, subprocess, os, requests
+sys.modules.setdefault("cPickle", pickle)   # vendor が import cPickle を呼んでも OK
+# ---------------------------------------------------------------
+
 from pathlib import Path
-import os
-import sys
-import requests
+from typing import NoReturn
 
-# --- vendor/windsurf を import path に追加 ------------------
-VENDOR_ROOT = Path(__file__).parent / "vendor" / "windsurf" / "windsurf"
-sys.path.insert(0, str(VENDOR_ROOT))
+# ------------------------------------------------------------------
+# メイン処理
+# ------------------------------------------------------------------
+def main() -> NoReturn:
+    repo_root = Path(__file__).parent       # windsuf-auto-blog/
+    yaml_path = repo_root / "auto_seo.yaml"     # パイプライン定義
+    cli_path  = repo_root / "vendor" / "windsurf" / "windsurf" / "console.py"
 
-from model import run_pipeline  # type: ignore
+    # ① パイプライン実行
+    print("🐍 running WindSurf pipeline...")
+    cmd = [
+        sys.executable,            # いま実行中の Python (=3.11)
+        str(cli_path),
+        "run",
+        str(yaml_path),
+    ]
+    print("🚀", *cmd)              # デバッグ出力
+    subprocess.run(cmd, check=True)
 
-def main() -> None:
-    yaml_path = Path(__file__).with_name("auto_seo.yaml")
-    print(f"🚀 run_pipeline() with {yaml_path}")
-    run_pipeline(str(yaml_path))
-    print("✅ WindSurf pipeline finished")
-
-    # Slack テスト通知
+    # ② Slack へテスト通知
     webhook = os.getenv("SLACK_WEBHOOK_URL")
     if webhook:
-        resp = requests.post(webhook, json={"text": "✅ WindSurf pipeline finished"})
-        print("Slack:", resp.status_code, resp.text[:200])
+        resp = requests.post(webhook, json={
+            "text": "✅ WindSurf AUTO Writer テスト通知 (from run_pipeline.py)"
+        })
+        if resp.status_code == 200:
+            print("✅ Slack へ通知成功")
+        else:
+            print(f"❌ Slack 通知失敗: {resp.status_code} {resp.text}")
+    else:
+        print("⚠️ SLACK_WEBHOOK_URL が未設定のため Slack 送信スキップ")
 
+    # 正常終了
+    print("🎉 run_pipeline.py 完了")
+
+# ------------------------------------------------------------------
 if __name__ == "__main__":
     main()

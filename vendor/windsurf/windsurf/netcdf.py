@@ -1,3 +1,8 @@
+try:
+    import netCDF4 as nc
+except ImportError:
+    nc = None  # netCDF4 が無い環境用のダミー
+
 import netCDF4
 import logging
 from datetime import datetime

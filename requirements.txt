@@ -24,4 +24,4 @@ google-auth
 google-auth-httplib2
 google-auth-oauthlib
 python-wordpress-xmlrpc==2.3
-requests
+requestsbmi-python==0.3.0

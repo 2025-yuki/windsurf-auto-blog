@@ -13,7 +13,7 @@ from bmi.api import IBmi
 from bmi.wrapper import BMIWrapper
 from multiprocessing import Process
 
-import netcdf, parsers
+from . import netcdf, parsers
 
 
 # initialize log

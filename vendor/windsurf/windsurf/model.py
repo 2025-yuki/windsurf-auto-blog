@@ -8,7 +8,7 @@ import logging
 import traceback
 import importlib
 import numpy as np
-import cPickle as pickle
+import pickle
 from bmi.api import IBmi
 from bmi.wrapper import BMIWrapper
 from multiprocessing import Process

@@ -3,7 +3,7 @@ try:
 except ImportError:
     nc = None  # netCDF4 が無い環境用のダミー
 
-import netCDF4
+# import netCDF4 (disabled for CI)
 import logging
 from datetime import datetime
 

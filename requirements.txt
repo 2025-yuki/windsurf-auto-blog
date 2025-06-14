@@ -26,3 +26,4 @@ google-auth-oauthlib
 python-wordpress-xmlrpc==2.3
 bmi-python==0.3.0
 
+netCDF4==1.6.5

@@ -317,13 +317,13 @@ class WindsurfWrapper:
 
         dimensions = {}
 
-        if self.engine.models.has_key('xbeach'):
+        if self.engine.'xbeach' in models:
             cfg_xbeach = parsers.XBeachParser(
                 self.engine.models['xbeach']['configfile']).parse()
         else:
             cfg_xbeach = {}
 
-        if self.engine.models.has_key('aeolis'):
+        if self.engine.'aeolis' in models:
             cfg_aeolis = parsers.AeolisParser(
                 self.engine.models['aeolis']['configfile']).parse()
         else:
@@ -565,7 +565,7 @@ class Windsurf(IBmi):
             logger.info('Loading library "%s"...' % name)
 
             # support local engines
-            if props.has_key('engine_path') and \
+            if 'engine_path' in props and \
                props['engine_path'] and \
                os.path.isabs(props['engine_path']) and \
                os.path.exists(props['engine_path']):
@@ -821,7 +821,7 @@ class Windsurf(IBmi):
 
         '''
 
-        if kwargs.has_key('cfg'):
+        if 'cfg' in kwargs:
             cfg = kwargs['cfg']
         else:
             cfg = None

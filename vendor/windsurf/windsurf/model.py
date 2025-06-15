@@ -677,7 +677,7 @@ for name, props in self.models.items():
             self.models[name]['_wrapper'].finalize()
 
 
-                    def _exchange_data(self, engine):
+            def _exchange_data(self, engine):
             """Exchange data from all model engines to *engine*."""
             pass  # TODO: implement
 

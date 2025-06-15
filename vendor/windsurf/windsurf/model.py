@@ -323,7 +323,7 @@ class WindsurfWrapper:
         else:
             cfg_xbeach = {}
 
-        if self.engine.'aeolis' in models:
+        if self.engine["aeolis"] in models:
             cfg_aeolis = parsers.AeolisParser(
                 self.engine.models['aeolis']['configfile']).parse()
         else:

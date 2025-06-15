@@ -1,0 +1,6 @@
+{
+  "openai_api_key": "${OPENAI_API_KEY}",
+  "wp_category": "ブログ自動化",
+  "title_template": "{keyword}｜15分でわかる",
+  "image_style": "flat"
+}

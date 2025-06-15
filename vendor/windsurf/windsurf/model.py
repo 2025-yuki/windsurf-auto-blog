@@ -560,8 +560,8 @@ class Windsurf(IBmi):
         '''Initialize model engines and configuration'''
 
         # initialize model engines
-        for name, props in self.models.iteritems():
-            
+        self.models = self.models or {}          # None → 空 dict に
+        for name, props in self.models.items():  # iteritems() → items()
             logger.info('Loading library "%s"...' % name)
 
             # support local engines
@@ -672,7 +672,8 @@ class Windsurf(IBmi):
         '''Finalize model engines'''
 
         # finalize model engines
-        for name, props in self.models.iteritems():
+        self.models = self.models or {}
+for name, props in self.models.items():
             self.models[name]['_wrapper'].finalize()
 
 
@@ -728,7 +729,8 @@ class Windsurf(IBmi):
         lag = np.inf
         engine = None
         
-        for name, props in self.models.iteritems():
+        self.models = self.models or {}
+for name, props in self.models.items():
             if props['_time'] < lag:
                 lag = props['_time']
                 engine = name

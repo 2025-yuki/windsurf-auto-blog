@@ -317,7 +317,7 @@ class WindsurfWrapper:
 
         dimensions = {}
 
-        if self.engine.'xbeach' in models:
+        if self.engine["xbeach"] in models:
             cfg_xbeach = parsers.XBeachParser(
                 self.engine.models['xbeach']['configfile']).parse()
         else:

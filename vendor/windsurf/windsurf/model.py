@@ -678,45 +678,10 @@ for name, props in self.models.items():
 
 
             def _exchange_data(self, engine):
-            """Exchange data from all model engines to *engine*."""
-            pass  # TODO: implement
+                """Exchange data from all model engines to *engine*."""
+                pass  # TODO: implement
 
-                    Reads exchange configuration and looks for items where the
-                given model engine is in the "var_to" field and reads the
-                corresponding "var_from" variable from the model engine
-                specified by the "var_to" variable.
-
-    Parameters
-        ----------
-        engine : str
-            model engine to write data to
-
-        '''
-
-        exchange = self.get_config_value('exchange')
-        if exchange is not None:
-            for ex in exchange:
-                engine_to, var_to = self._split_var(ex['var_to'])
-                engine_from, var_from = self._split_var(ex['var_from'])
-                if engine_to == engine:
-                
-                    logger.debug('Exchange "%s" to "%s"' % (
-                        ex['var_from'],
-                        ex['var_to']))
-
-                    try:
-                        val = self.models[engine_from]['_wrapper'].get_var(var_from)
-                    except:
-                        logger.error('Failed to get "%s" from "%s"!' % (var_from, engine_from))
-                        logger.error(traceback.format_exc())
-
-                    try:
-                        self.models[engine_to]['_wrapper'].set_var(var_to, val)
-                    except:
-                        logger.error('Failed to set "%s" in "%s"!' % (var_to, engine_to))
-                        logger.error(traceback.format_exc())
-    
-
+                    
     def _get_engine_maxlag(self):
         '''Get model engine with maximum lag from current time
 

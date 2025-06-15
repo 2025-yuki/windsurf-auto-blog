@@ -830,7 +830,7 @@ class Windsurf(IBmi):
             cfg = self.config
 
         if len(keys) > 0:
-            if cfg.has_key(keys[0]):
+            if keys[0] in cfg:
                 cfg = self.get_config_value(*keys[1:], cfg=cfg[keys[0]])
             else:
                 cfg = None

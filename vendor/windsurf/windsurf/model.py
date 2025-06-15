@@ -682,7 +682,7 @@ for name, props in self.models.items():
                 pass  # TODO: implement
 
                     
-    def _get_engine_maxlag(self):
+        def _get_engine_maxlag(self):
         '''Get model engine with maximum lag from current time
 
         Returns

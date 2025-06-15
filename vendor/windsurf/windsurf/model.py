@@ -677,10 +677,10 @@ for name, props in self.models.items():
             self.models[name]['_wrapper'].finalize()
 
 
-    def _exchange_data(self, engine):
+        def _exchange_data(self, engine):
     '''Exchange data from all model engines to a given model engine
 
-    Reads exchange configuration and looks for items where the
+        Reads exchange configuration and looks for items where the
     given model engine is in the "var_to" field and reads the
     corresponding "var_from" variable from the model engine
     specified by the "var_to" variable.

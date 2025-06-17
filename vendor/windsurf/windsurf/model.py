@@ -676,33 +676,28 @@ class Windsurf(IBmi):
 for name, props in self.models.items():
             self.models[name]['_wrapper'].finalize()
 
+        def _exchange_data(self, engine):
+            """Exchange data from all model engines to *engine*."""
+            pass  # TODO: implement
 
-            def _exchange_data(self, engine):
-                """Exchange data from all model engines to *engine*."""
-                pass  # TODO: implement
-
-                    
         def _get_engine_maxlag(self):
-            '''Get model engine with maximum lag from current time
+            """Get model engine with maximum lag from current time.
 
             Returns
             -------
             str
-            name of model engine with larges lag
+                name of model engine with largest lag
+            """
+            lag = np.inf
+            engine = None
 
-            '''
+            self.models = self.models or {}
+            for name, props in self.models.items():
+                if props["_time"] < lag:
+                    lag = props["_time"]
+                    engine = name
 
-        lag = np.inf
-        engine = None
-        
-        self.models = self.models or {}
-for name, props in self.models.items():
-            if props['_time'] < lag:
-                lag = props['_time']
-                engine = name
-
-        return engine
-
+            return engine
 
     def _split_var(self, name):
         '''Split variable name in engine and variable part

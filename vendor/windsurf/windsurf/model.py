@@ -681,22 +681,14 @@ for name, props in self.models.items():
             pass  # TODO: implement
 
         def _get_engine_maxlag(self):
-            """Get model engine with maximum lag from current time.
-
-            Returns
-            -------
-            str
-                name of model engine with largest lag
-            """
+            """Get model engine with maximum lag from current time."""
             lag = np.inf
             engine = None
-
             self.models = self.models or {}
             for name, props in self.models.items():
                 if props["_time"] < lag:
                     lag = props["_time"]
                     engine = name
-
             return engine
 
     def _split_var(self, name):

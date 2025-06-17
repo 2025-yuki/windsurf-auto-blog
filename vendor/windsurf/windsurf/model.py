@@ -683,14 +683,14 @@ for name, props in self.models.items():
 
                     
         def _get_engine_maxlag(self):
-        '''Get model engine with maximum lag from current time
+            '''Get model engine with maximum lag from current time
 
-        Returns
-        -------
-        str
+            Returns
+            -------
+            str
             name of model engine with larges lag
 
-        '''
+            '''
 
         lag = np.inf
         engine = None

@@ -1,6 +1,4 @@
 openai
-python-wordpress-xmlrpc
-google-api-python-client
-google-auth
 python-dotenv
+python-wordpress-xmlrpc
 requests

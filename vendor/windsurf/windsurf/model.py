@@ -667,11 +667,12 @@ class Windsurf(IBmi):
         self.t = np.mean([m['_time'] for m in self.models.itervalues()])
         logger.debug('Arrived in future at t=%0.2f' % self.t)
 
+　　　　def finalize(self):
+　   　...
+　　　　def _exchange_data(self, engine):        ← finalize と同じ深さ（8 スペース）
+           """Exchange data from all model engines to *engine*."""
+           pass  # TODO: implement
 
-    def finalize(self):
-        '''Finalize model engines'''
-
-        # finalize model engines
         self.models = self.models or {}
 for name, props in self.models.items():
             self.models[name]['_wrapper'].finalize()

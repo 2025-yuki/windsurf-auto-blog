@@ -15,3 +15,7 @@ run_pipeline.py.bak
 .venv
 __pycache__
 .DS_Store
+
+# local env & cache
+.venv/
+.DS_Store
